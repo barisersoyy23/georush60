@@ -1,0 +1,15 @@
+{
+  "name": "georush60",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GMT 458 Assignment 2 — GeoGame",
+  "type": "module",
+  "scripts": {
+    "build-data": "node scripts/build-data.mjs"
+  },
+  "devDependencies": {
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2",
+    "world-countries": "^5.1.0"
+  }
+}
