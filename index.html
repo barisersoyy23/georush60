@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoRush 60 — Find the Country</title>
+  <meta name="description" content="GMT 458 Web GIS – Assignment 2: 60-second geography game (Leaflet + D3 + Chart.js)" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- ========== HUD (top bar) ========== -->
+  <header class="hud">
+    <div class="brand">
+      <span class="brand-mark">◎</span>
+      <span class="brand-name">GeoRush<b>60</b></span>
+    </div>
+
+    <div class="hud-stats">
+      <div class="stat">
+        <span class="stat-label">SCORE</span>
+        <span class="stat-value mono" id="score">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">LEVEL</span>
+        <span class="stat-value mono" id="level">1</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">STREAK</span>
+        <span class="stat-value mono" id="streak">×1.00</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">LIVES</span>
+        <span class="stat-value lives" id="lives" aria-label="Lives left">♥♥♥</span>
+      </div>
+    </div>
+
+    <div class="timer" aria-label="Time left">
+      <span class="timer-value mono" id="timer-value">60.0</span>
+      <div class="timer-track"><div class="timer-bar" id="timer-bar"></div></div>
+    </div>
+  </header>
+
+  <!-- ========== Main area: map + side panel ========== -->
+  <main class="layout">
+    <section class="map-wrap">
+      <div id="map" aria-label="World map"></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </section>
+
+    <aside class="panel">
+      <div class="question-card">
+        <p class="q-label">FIND THIS COUNTRY</p>
+        <h1 class="q-target" id="q-target">—</h1>
+        <p class="q-meta" id="q-meta">Question 0 · Level 1</p>
+      </div>
+
+      <div class="clues" id="clues">
+        <p class="clues-empty">No hints yet. Stuck? Press <kbd>H</kbd> (−50 pts).</p>
+      </div>
+
+      <div class="actions">
+        <button class="btn ghost" id="btn-hint" disabled>💡 Hint <kbd>H</kbd></button>
+        <button class="btn ghost" id="btn-skip" disabled>⏭ Skip <kbd>S</kbd></button>
+        <button class="btn ghost" id="btn-pause" disabled>⏸ Pause <kbd>P</kbd></button>
+      </div>
+
+      <div class="level-track" id="level-track" aria-label="Level progress"></div>
+
+      <ol class="log" id="log" aria-label="Recent answers"></ol>
+    </aside>
+  </main>
+
+  <!-- ========== Start screen ========== -->
+  <div class="overlay" id="screen-start">
+    <div class="modal">
+      <p class="eyebrow">GMT 458 · Web GIS · GeoGame</p>
+      <h2>GeoRush <span class="accent">60</span></h2>
+      <p class="lead">Find the named country on the map and click it. You have <b>60 seconds</b> and <b>3 lives</b>. Every level the countries get smaller and the game gets harder.</p>
+      <ul class="rules">
+        <li><span>✔</span> Correct: points + <b>2 s</b> bonus time. Faster answer = speed bonus.</li>
+        <li><span>✖</span> Wrong: lose 1 life, streak resets, and you see how far off you were.</li>
+        <li><span>🔥</span> Correct answers in a row raise your multiplier up to ×2.</li>
+        <li><span>⏭</span> Skip: no life lost, but you lose 3 s.</li>
+      </ul>
+      <div class="best" id="best-line"></div>
+      <button class="btn primary big" id="btn-start">Start <kbd>Enter</kbd></button>
+      <p class="hint-keys">Shortcuts: <kbd>H</kbd> hint · <kbd>S</kbd> skip · <kbd>P</kbd>/<kbd>Esc</kbd> pause</p>
+    </div>
+  </div>
+
+  <!-- ========== Pause screen ========== -->
+  <div class="overlay hidden" id="screen-pause">
+    <div class="modal small">
+      <h2>Paused</h2>
+      <p class="lead">The map is hidden — no peeking 😉</p>
+      <button class="btn primary big" id="btn-resume">Resume <kbd>P</kbd></button>
+    </div>
+  </div>
+
+  <!-- ========== Game over screen ========== -->
+  <div class="overlay hidden" id="screen-over">
+    <div class="modal wide">
+      <p class="eyebrow" id="over-reason">Time's up</p>
+      <h2>Your score: <span class="accent mono" id="final-score">0</span></h2>
+      <div class="summary" id="summary"></div>
+
+      <div class="over-grid">
+        <div class="chart-box">
+          <h3>Answer times (s)</h3>
+          <canvas id="chart-times" height="180"></canvas>
+        </div>
+        <div class="board-box">
+          <h3>High scores</h3>
+          <form id="form-save" class="save-form" autocomplete="off">
+            <input id="player-name" maxlength="16" placeholder="Your name" required />
+            <button class="btn primary" type="submit">Save</button>
+          </form>
+          <ol class="leaderboard" id="leaderboard"></ol>
+        </div>
+      </div>
+
+      <div class="missed" id="missed"></div>
+      <button class="btn primary big" id="btn-restart">Play again <kbd>Enter</kbd></button>
+    </div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Open data (Natural Earth + mledoze/countries), built by scripts/build-data.mjs -->
+  <script src="data/countries.js"></script>
+  <!-- Game code -->
+  <script src="js/utils.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
