@@ -2,8 +2,8 @@
 
 **GMT 458 – Web GIS · Assignment 2: GeoGame**
 
-🎮 **Play online:** https://YOUR-GITHUB-USERNAME.github.io/georush60/  
-📦 **Repository:** https://github.com/YOUR-GITHUB-USERNAME/georush60
+🎮 **Play online:** https://barisersoyy23.github.io/georush60/  
+📦 **Repository:** https://github.com/barisersoyy23/georush60
 
 ![Gameplay screenshot](docs/screenshot-game.png)
 
@@ -46,7 +46,7 @@ Geography is the core of the gameplay, not decoration:
 ┌──────────────────────────────────────────────────────────────────────────┐
 │ ◎ GeoRush60      SCORE LEVEL  STREAK ♥♥♥                 59.6 ████████░ │  ← HUD
 ├───────────────────────────────────────────────────┬──────────────────────┤
-│  [+]           ( toast: ✖ Target is 1,240 km east )  │  FIND THIS COUNTRY   │
+│  [+]           ( toast: ✖ Target: 1,240 km east )  │  FIND THIS COUNTRY   │
 │  [-]                                               │  ██ Brazil ██        │
 │                                                    │  Question 4 · Lvl 1  │
 │              LEAFLET WORLD MAP                     ├──────────────────────┤
@@ -203,20 +203,26 @@ No build tool is needed. Open `index.html` in a browser (or use the VS Code **Li
 ### 11.6 Online web application (GitHub Pages)
 
 The game is hosted with GitHub Pages: **Settings → Pages → Source: Deploy from a branch → `main` / `(root)`**.  
-Live URL: https://YOUR-GITHUB-USERNAME.github.io/georush60/
+Live URL: https://barisersoyy23.github.io/georush60/
 
 ## 12. What I learned from AI
 
-> ✏️ **Fill this section in yourself.** Write honestly what you asked the AI, what you learned and what you changed, and put the link to the conversation.
-
 - **AI tool:** Claude (Anthropic)
-- **Conversation URL:** `PASTE-THE-SHARE-LINK-HERE`
-- **What I learned:**
-  - *(example)* How closures can hide state (timer, score) instead of using global variables.
-  - *(example)* Why a country centroid and the distance between two countries should be computed on a sphere (`d3.geoCentroid`, `d3.geoDistance`) and not with simple lat/lon averages.
-  - *(example)* Why polygons crossing the 180° meridian draw stripes in Leaflet and how to "unwrap" their longitudes.
-  - *(example)* How to measure time accurately with `performance.now()` instead of counting `setInterval` ticks.
-- **What I changed / decided myself:** *(write your own changes here)*
+- **Conversation URL:** PASTE-THE-SHARE-LINK-HERE
+
+I used Claude to help design and build the game, and to set up Git and GitHub Pages. What I learned:
+
+- **Closures:** how a factory function (`createCountdown`, `createScoreKeeper`) can keep the timer and the score private instead of using global variables, so only the allowed functions can change them.
+- **Spherical geometry:** why the centroid of a country and the distance between two countries should be computed on a sphere (`d3.geoCentroid`, `d3.geoDistance`) and not by averaging latitude/longitude values.
+- **The 180° meridian problem:** countries like Russia and Fiji cross the antimeridian, which draws long stripes across a Leaflet map. Their longitudes have to be "unwrapped" so the polygons stay continuous.
+- **Accurate timing:** measuring real elapsed time with `performance.now()` instead of counting `setInterval` ticks, and stopping the clock during pauses and feedback animations.
+- **Basemaps and API keys:** the CARTO basemap I first used now requires an API key and showed an "API KEY REQUIRED" watermark. I learned that a game like this does not need a tile basemap at all. A D3 graticule plus the country polygons is enough, and labels would give the answers away anyway.
+- **Git and GitHub:** how to make several meaningful commits instead of one big upload, how to fix a `403 Permission denied` error caused by Windows remembering a different GitHub account (Credential Manager), and how to publish the site with GitHub Pages.
+
+**What I changed / decided myself:**
+- I tested the game and noticed the "API KEY REQUIRED" text on the map, so the CARTO basemap was replaced with a D3 graticule.
+- I decided to switch the game's interface and country names from Turkish to English so the game matches the course language.
+- I set up the repository, the commits and GitHub Pages myself on my own computer.
 
 ## 13. Credits
 
